@@ -11,6 +11,7 @@
         <TextBlock Height="23" HorizontalAlignment="Left"  Name="status" Text="Status" VerticalAlignment="Top" Margin="0,29,0,0" />
         <TextBlock Height="23" HorizontalAlignment="Left"  Name="image" Text="Image" VerticalAlignment="Top" Margin="-1,72,0,0" />
         <Button Content="Start Camera" Height="23" HorizontalAlignment="Left" Margin="178,271,0,0" Name="cameraOn" VerticalAlignment="Top" Width="75" Click="cameraOn_Click" />
+        <Button Content="Stop Camera" Height="23" HorizontalAlignment="Left" Margin="282,271,0,0" Name="cameraOff" VerticalAlignment="Top" Width="75" Click="cameraOff_Click" />
         <Button Content="Change username" Height="23" HorizontalAlignment="Left" Margin="282,0,0,0" Name="submitUname" VerticalAlignment="Top" Width="111" Click="button1_Click" />
         <Button Content="Change status" Height="23" HorizontalAlignment="Left" Margin="282,28,0,0" Name="submitStatus" VerticalAlignment="Top" Width="111" Click="submitStatus_Click" />
         <Button Content="Connect" Height="23" HorizontalAlignment="Left" Margin="282,237,0,0" Name="connect" VerticalAlignment="Top" Width="75" Click="connect_Click" />

@@ -17,6 +17,7 @@ using GroupLab.Networking;
 
 using System.Windows.Interop;
 using System.Drawing.Imaging;
+using System.Drawing;
 
 using TouchlessLib;
 
@@ -40,7 +41,7 @@ namespace PortHoles
             InitializeComponent();
 
             this.sd = new SharedDictionary();
-            this.sd.Url = "tcp://192.168.0.139:test";
+            this.sd.Url = "tcp://localhost:testando";
             this.sd.Open();
 
             this.svideo = new Subscription();
@@ -51,12 +52,19 @@ namespace PortHoles
 
         void svideo_Notified(object sender, SubscriptionEventArgs e)
         {
-            
-            this.Dispatcher.Invoke(new Action(delegate()
+            String key = "/" + this.uname + "/video";
+            if (key == e.Path)
             {
-                Console.WriteLine("Key: " + e.Path + " = " + e.Value + "; because: " + e.Reason + "\n");
-                this.receivedImg.Source = (ImageSource)e.Value;
-            }));
+                this.Dispatcher.Invoke(new Action(delegate()
+                {
+                    Console.WriteLine("Key: " + e.Path + " = " + e.Value + "; because: " + e.Reason + "\n");
+                    var memoryStream = new MemoryStream((byte[])e.Value);
+                    var image = Bitmap.FromStream(memoryStream);
+                    ImageSource iSource = Imaging.CreateBitmapSourceFromHBitmap(((Bitmap)image).GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
+                    this.receivedImg.Source = iSource;
+                }));
+            }
+
         }
 
         void CurrentCamera_OnImageCaptured(object sender, CameraEventArgs e)
@@ -65,9 +73,14 @@ namespace PortHoles
             {
                 ImageSource iSource = Imaging.CreateBitmapSourceFromHBitmap(e.Image.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
                 this.myImg.Source = iSource;
+
+                var memoryStream = new MemoryStream();
+                e.Image.Save(memoryStream, ImageFormat.Jpeg);
+                var byteArray = memoryStream.ToArray();
+
                 //this.receivedImg.Source = iSource;
                 String key = "/" + this.uname + "/video";
-                this.sd[key] = iSource;
+                this.sd[key] = byteArray;
             }));
         }
 
@@ -95,6 +108,11 @@ namespace PortHoles
             this.sd.Url = this.serverBox.Text;
             this.sd.Open();
             Console.WriteLine(this.sd.Status);
+        }
+
+        private void cameraOff_Click(object sender, RoutedEventArgs e)
+        {
+            this.tm.CurrentCamera.OnImageCaptured -= new EventHandler<CameraEventArgs>(CurrentCamera_OnImageCaptured);
         }
 
     }
