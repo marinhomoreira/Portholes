@@ -31,6 +31,7 @@ namespace PortHoles
     {
         SharedDictionary sd;
         Subscription svideo;
+        Subscription status;
 
         TouchlessMgr tm;
 
@@ -41,19 +42,24 @@ namespace PortHoles
             InitializeComponent();
 
             this.sd = new SharedDictionary();
-            this.sd.Url = "tcp://localhost:testando";
+            this.sd.Url = "tcp://192.168.0.140:test";
             this.sd.Open();
 
             this.svideo = new Subscription();
             this.svideo.Pattern = "/*/video";
             this.svideo.Dictionary = this.sd;
             this.svideo.Notified += new SubscriptionEventHandler(svideo_Notified);
+
+            this.status = new Subscription();
+            this.status.Pattern = "/*/status";
+            this.status.Dictionary = this.sd;
+            this.status.Notified += new SubscriptionEventHandler(status_Notified);
         }
 
         void svideo_Notified(object sender, SubscriptionEventArgs e)
         {
             String key = "/" + this.uname + "/video";
-            if (key == e.Path)
+            if (key != e.Path)
             {
                 this.Dispatcher.Invoke(new Action(delegate()
                 {
@@ -62,6 +68,27 @@ namespace PortHoles
                     var image = Bitmap.FromStream(memoryStream);
                     ImageSource iSource = Imaging.CreateBitmapSourceFromHBitmap(((Bitmap)image).GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
                     this.receivedImg.Source = iSource;
+                }));
+            }
+        }
+
+        void status_Notified(object sender, SubscriptionEventArgs e)
+        {
+            String key = "/" + this.uname + "/status";
+            if (key == e.Path)
+            {
+                this.Dispatcher.Invoke(new Action(delegate()
+                {
+                    Console.WriteLine("Key: " + e.Path + " = " + e.Value + "; because: " + e.Reason + "\n");
+                    this.selfStatus.Text = this.uname + ": " + e.Value;
+                }));
+            }
+            else
+            {
+                this.Dispatcher.Invoke(new Action(delegate()
+                {
+                    Console.WriteLine("Key: " + e.Path + " = " + e.Value + "; because: " + e.Reason + "\n");
+                    this.otherStatus.Text = (String)e.Value;
                 }));
             }
 
@@ -99,7 +126,8 @@ namespace PortHoles
 
         private void submitStatus_Click(object sender, RoutedEventArgs e)
         {
-            // TODO
+            String key = "/" + this.uname + "/status";
+            this.sd[key] = this.statusBox.Text;
         }
 
         private void connect_Click(object sender, RoutedEventArgs e)
@@ -113,6 +141,8 @@ namespace PortHoles
         private void cameraOff_Click(object sender, RoutedEventArgs e)
         {
             this.tm.CurrentCamera.OnImageCaptured -= new EventHandler<CameraEventArgs>(CurrentCamera_OnImageCaptured);
+            String key = "/" + this.uname + "/*";
+            this.sd.Remove(key);
         }
 
     }
