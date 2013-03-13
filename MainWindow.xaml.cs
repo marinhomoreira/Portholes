@@ -12,6 +12,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using System.Text.RegularExpressions;
+
 using System.IO;
 using GroupLab.Networking;
 
@@ -42,7 +44,7 @@ namespace PortHoles
             InitializeComponent();
 
             this.sd = new SharedDictionary();
-            this.sd.Url = "tcp://192.168.0.140:test";
+            this.sd.Url = "tcp://192.168.0.123:test";
             this.sd.Open();
 
             this.svideo = new Subscription();
@@ -55,9 +57,13 @@ namespace PortHoles
             this.status.Dictionary = this.sd;
             this.status.Notified += new SubscriptionEventHandler(status_Notified);
         }
-
+        
         void svideo_Notified(object sender, SubscriptionEventArgs e)
         {
+            string[] values = Regex.Split(e.Path, @"/");
+
+            Console.WriteLine(values[1]);
+            
             String key = "/" + this.uname + "/video";
             if (key != e.Path)
             {
@@ -67,7 +73,8 @@ namespace PortHoles
                     var memoryStream = new MemoryStream((byte[])e.Value);
                     var image = Bitmap.FromStream(memoryStream);
                     ImageSource iSource = Imaging.CreateBitmapSourceFromHBitmap(((Bitmap)image).GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
-                    this.receivedImg.Source = iSource;
+                    this.cam1.WebCamImage = iSource;
+                    
                 }));
             }
         }
@@ -88,7 +95,7 @@ namespace PortHoles
                 this.Dispatcher.Invoke(new Action(delegate()
                 {
                     Console.WriteLine("Key: " + e.Path + " = " + e.Value + "; because: " + e.Reason + "\n");
-                    this.otherStatus.Text = (String)e.Value;
+                    this.cam1.status.Text = (String)e.Value;
                 }));
             }
 
@@ -105,7 +112,6 @@ namespace PortHoles
                 e.Image.Save(memoryStream, ImageFormat.Jpeg);
                 var byteArray = memoryStream.ToArray();
 
-                //this.receivedImg.Source = iSource;
                 String key = "/" + this.uname + "/video";
                 this.sd[key] = byteArray;
             }));
