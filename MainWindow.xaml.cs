@@ -37,7 +37,11 @@ namespace PortHoles
 
         TouchlessMgr tm;
 
-        String uname = "ae";
+        String uname;
+
+
+        Dictionary<string, CamWindow> dic;
+        List<CamWindow> availableCams;
 
         public MainWindow()
         {
@@ -56,31 +60,54 @@ namespace PortHoles
             this.status.Pattern = "/*/status";
             this.status.Dictionary = this.sd;
             this.status.Notified += new SubscriptionEventHandler(status_Notified);
+
+            this.dic = new Dictionary<string, CamWindow>();
+            this.availableCams = new List<CamWindow>();
+            availableCams.Add(this.cam1);
+            availableCams.Add(this.cam2);
+            availableCams.Add(this.cam3);
         }
-        
+
         void svideo_Notified(object sender, SubscriptionEventArgs e)
         {
             string[] values = Regex.Split(e.Path, @"/");
+            string username = values[1];
 
-            Console.WriteLine(values[1]);
-            
+            if (!dic.ContainsKey(username))
+            {
+                dic.Add(username, availableCams.ElementAt(0));
+                availableCams.RemoveAt(0);
+            }
+
             String key = "/" + this.uname + "/video";
-            if (key != e.Path)
+            if (key != e.Path && e.Reason.ToString() == "Change")
             {
                 this.Dispatcher.Invoke(new Action(delegate()
                 {
-                    Console.WriteLine("Key: " + e.Path + " = " + e.Value + "; because: " + e.Reason + "\n");
                     var memoryStream = new MemoryStream((byte[])e.Value);
                     var image = Bitmap.FromStream(memoryStream);
                     ImageSource iSource = Imaging.CreateBitmapSourceFromHBitmap(((Bitmap)image).GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
-                    this.cam1.WebCamImage = iSource;
-                    
+                    this.dic[username].WebCamImage = iSource;
+                    this.dic[username].Username = username;
                 }));
+            }
+
+            if (e.Reason.ToString() == "Remove")
+            {
+                
+                this.Dispatcher.Invoke(new Action(delegate()
+                {
+                    gridao.Children.Remove(this.dic[username]);
+
+                }));
+                this.dic.Remove(username);
             }
         }
 
         void status_Notified(object sender, SubscriptionEventArgs e)
         {
+            string[] values = Regex.Split(e.Path, @"/");
+            string username = values[1];
             String key = "/" + this.uname + "/status";
             if (key == e.Path)
             {
@@ -95,10 +122,9 @@ namespace PortHoles
                 this.Dispatcher.Invoke(new Action(delegate()
                 {
                     Console.WriteLine("Key: " + e.Path + " = " + e.Value + "; because: " + e.Reason + "\n");
-                    this.cam1.status.Text = (String)e.Value;
+                    this.dic[username].Status = (String)e.Value;
                 }));
             }
-
         }
 
         void CurrentCamera_OnImageCaptured(object sender, CameraEventArgs e)

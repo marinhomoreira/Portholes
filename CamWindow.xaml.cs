@@ -36,5 +36,11 @@ namespace PortHoles
             set { this.status.Text = value; }
         }
 
+        public string Username
+        {
+            get { return this.username.Text; }
+            set { this.username.Text = value; }
+        }
+
     }
 }

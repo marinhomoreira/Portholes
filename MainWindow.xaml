@@ -14,7 +14,8 @@
             <ColumnDefinition Width="78" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="510*" />
+            <ColumnDefinition Width="370" />
+            <ColumnDefinition Width="320" />
         </Grid.ColumnDefinitions>
 
         <Label Grid.Row="0" Grid.Column="0" Content="Server URL" Margin="5" />
@@ -36,5 +37,6 @@
 
         <wc:CamWindow x:Name="cam1" Grid.Row="3" Grid.ColumnSpan="3" />
         <wc:CamWindow x:Name="cam2" Grid.Row="3" Grid.Column="3" />
+        <wc:CamWindow x:Name="cam3" Grid.Row="3" Grid.Column="4" />
     </Grid>
 </Window>
