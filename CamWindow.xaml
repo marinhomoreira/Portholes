@@ -11,7 +11,7 @@
             <RowDefinition Height="240" />
             <RowDefinition Height="40" />
         </Grid.RowDefinitions>
-        <TextBlock Height="23" HorizontalAlignment="Center" Name="username" Text="" VerticalAlignment="Top" Grid.Row="0" />
+        <TextBlock Height="23" HorizontalAlignment="Center" Name="username" Text="" VerticalAlignment="Bottom" Grid.Row="0" />
         <Image Height="240" HorizontalAlignment="Center" Name="receivedImg" VerticalAlignment="Top" Width="320" Grid.Row="1" />
         <TextBlock Height="23" HorizontalAlignment="Center" Name="status" Text="" VerticalAlignment="Top" Grid.Row="2" />
     </Grid>

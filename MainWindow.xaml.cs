@@ -122,7 +122,7 @@ namespace PortHoles
                 this.Dispatcher.Invoke(new Action(delegate()
                 {
                     Console.WriteLine("Key: " + e.Path + " = " + e.Value + "; because: " + e.Reason + "\n");
-                    this.dic[username].Status = (String)e.Value;
+                    this.dic[username].Status = "Status: " + (String)e.Value;
                 }));
             }
         }
